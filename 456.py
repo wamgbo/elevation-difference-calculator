@@ -36,7 +36,7 @@ def Correction_value(dH_list):
     for i in range(n):
         v = -WH * (L[i] / total_len) # 修正公式寫法
         vi.append(v)
-    return vi
+    return vigit
 
 V_list = Correction_value(dH_list)
 print(f"總改正值檢查 = {round(sum(V_list), 3)} m")
