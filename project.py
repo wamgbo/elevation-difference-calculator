@@ -70,16 +70,6 @@ def parser(df):
     
     surveying.after_high_list = [] 
     surveying.calculate_all()
-# -------------------------
-# 顯示 Excel 內容
-# -------------------------
-# def show_content():
-#     output_box.delete("1.0", tk.END)
-#     output_box.insert(tk.END, "BS\tFS\tL\n")
-#     output_box.insert(tk.END, "-" * 30 + "\n")
-
-#     for row in content:
-#         output_box.insert(tk.END, f"{row[0]}\t{row[1]}\t{row[2]}\n")
 
 def show_content():
     output_box.config(state=tk.NORMAL)
@@ -99,29 +89,17 @@ def show_content():
 # -------------------------
 # 計算並輸出結果
 # -------------------------
-# def output():
-#     print(select_allowable_misclosure.get())
+
 
 def output():
     global surveying
-    # if not BS or not FS:
-    #     output_box.insert(tk.END, "\n尚未讀取資料\n")
-    #     return
-    
-    
-    # result = surveying.
-    # print(result)
-    # print(surveying.check_misclosure())
-    # print(surveying.display_table())
 
-    # output_box.insert(tk.END, "\n計算結果：\n")
     output_box.config(state=tk.NORMAL)
     output_box.delete("1.0", tk.END)
     output_box.insert(tk.END, surveying.check_misclosure() + "\n")
     output_box.insert(tk.END, surveying.display_table() + "\n")
     output_box.config(state=tk.DISABLED)
-    # output_box.insert(tk.END, "\n計算結果：\n")
-    # output_box.insert(tk.END, surveying.output_tables() + "\n")
+
 
 def run():
     global df
@@ -138,7 +116,6 @@ tk.Button(window, text="calculate", command=run)\
 # -------------------------
 # 輸入框
 # -------------------------
-# bar1x=200
 bar1input=tk.StringVar()
 bar1x=0
 origin_hight_input_x=200
