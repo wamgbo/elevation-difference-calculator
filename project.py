@@ -1,8 +1,9 @@
 import tkinter as tk
 import pandas as pd
 import Surveying
-from tkinter import scrolledtext, filedialo
+from tkinter import scrolledtext, filedialog
 from tkinter import ttk
+
 
 # -------------------------
 # 主視窗
@@ -53,9 +54,9 @@ def parser(df):
     content.extend(df.values.tolist())
 
     for row in content:
-        BS.append(row[0])
-        FS.append(row[1])
-        L.append(row[2])
+        BS.append(row[1])
+        FS.append(row[2])
+        L.append(row[3])
 
 # -------------------------
 # 顯示 Excel 內容
