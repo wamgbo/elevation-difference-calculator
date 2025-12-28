@@ -23,7 +23,9 @@ surveying=Surveying()
 # -------------------------
 # 讀取檔案
 # -------------------------
+df=[]
 def open_file():
+    global df
     global content
     file_path = filedialog.askopenfilename(
         title="upload file",
@@ -48,27 +50,26 @@ def open_file():
 # -------------------------
 def parser(df):
     global surveying
+    df = df.dropna(subset=[df.columns[1], df.columns[2]]) 
+
     content.clear()
     BS.clear()
     FS.clear()
     L.clear()
 
-    content.extend(df.values.tolist())
+    BS.extend(pd.to_numeric(df.iloc[:, 1], errors='coerce').tolist())
+    FS.extend(pd.to_numeric(df.iloc[:, 2], errors='coerce').tolist())
+    L.extend(pd.to_numeric(df.iloc[:, 3], errors='coerce').tolist())
 
-    for row in content:
-        BS.append(row[1])
-        FS.append(row[2])
-        L.append(row[3])
-
-    # 將 Entry 內容轉成 float
+    
     origin_h = float(origin_hight.get())
-    print(origin_h)
     surveying.BS = BS
     surveying.FS = FS
     surveying.L = L
     surveying.origin_high = origin_h
-    surveying.calculate_all()  # 計算中間結果
-
+    
+    surveying.after_high_list = [] 
+    surveying.calculate_all()
 # -------------------------
 # 顯示 Excel 內容
 # -------------------------
@@ -81,19 +82,6 @@ def parser(df):
 #         output_box.insert(tk.END, f"{row[0]}\t{row[1]}\t{row[2]}\n")
 
 def show_content():
-    if not content:
-        return
-
-    # 將 content 轉回 DataFrame（或直接使用原 df）
-    # df_display = pd.DataFrame(content)
-        # DataFrame 加上欄位名稱
-    df_display = pd.DataFrame(content, columns=["Point", "BS", "FS", "L"])
-
-    # # 轉成字串
-    # df_str = df_display.to_string(index=False, header=True)
-
-    # 將 DataFrame 轉成字串
-    # df_str = df_display.to_string(index=False, header=True)
     output_box.config(state=tk.NORMAL)
     output_box.delete("1.0", tk.END)
     output_box.insert(tk.END, BS)
@@ -101,6 +89,10 @@ def show_content():
     output_box.insert(tk.END, FS)
     output_box.insert(tk.END, '\n')
     output_box.insert(tk.END, L)
+    output_box.insert(tk.END, '\n')
+    output_box.insert(tk.END, origin_hight.get())
+    output_box.insert(tk.END, '\n')
+    output_box.insert(tk.END, select_allowable_misclosure.get())
     output_box.insert(tk.END, '\n')
     output_box.config(state=tk.DISABLED)
 
@@ -111,24 +103,37 @@ def show_content():
 #     print(select_allowable_misclosure.get())
 
 def output():
-    if not BS or not FS:
-        output_box.insert(tk.END, "\n尚未讀取資料\n")
-        return
+    global surveying
+    # if not BS or not FS:
+    #     output_box.insert(tk.END, "\n尚未讀取資料\n")
+    #     return
     
     
     # result = surveying.
     # print(result)
-    print(surveying.display_table())
+    # print(surveying.check_misclosure())
+    # print(surveying.display_table())
+
+    # output_box.insert(tk.END, "\n計算結果：\n")
+    output_box.config(state=tk.NORMAL)
+    output_box.delete("1.0", tk.END)
+    output_box.insert(tk.END, surveying.check_misclosure() + "\n")
+    output_box.insert(tk.END, surveying.display_table() + "\n")
+    output_box.config(state=tk.DISABLED)
     # output_box.insert(tk.END, "\n計算結果：\n")
     # output_box.insert(tk.END, surveying.output_tables() + "\n")
 
+def run():
+    global df
+    parser(df)
+    output()
 # -------------------------
 # 按鈕
 # -------------------------
 tk.Button(window, text="upload file", command=open_file)\
     .grid(row=0, column=0, padx=30, pady=30, sticky="w")
 
-tk.Button(window, text="calculate", command=output)\
+tk.Button(window, text="calculate", command=run)\
     .grid(row=0, column=5, padx=30, pady=30, sticky="e")
 # -------------------------
 # 輸入框

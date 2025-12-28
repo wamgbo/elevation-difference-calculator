@@ -17,7 +17,7 @@ class Surveying:
     
     def calculate_all(self):
         self.total_len = sum(self.L)
-        self.K = self.total_len / 2      
+        self.K = (self.total_len / 2)*1000
         self._calc_level_high()
         self._calc_correction_value()
         self._calc_corr_level_high()
@@ -103,6 +103,6 @@ if __name__ == "__main__":
 
     survey = Surveying(bs_data, fs_data, l_data, start_h)
     survey.calculate_all()
-    survey.check_misclosure(constant=20)
+    print(survey.check_misclosure(constant=20))
     print(survey.display_table())
-    survey.plot_profile()
+    # survey.plot_profile()
