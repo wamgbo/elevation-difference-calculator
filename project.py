@@ -50,25 +50,29 @@ def open_file():
 # -------------------------
 def parser(df):
     global surveying
-    df = df.dropna(subset=[df.columns[1], df.columns[2]]) 
+    # 確保只取有數值的列
+    df_cleaned = df.dropna(subset=[df.columns[1], df.columns[2]]) 
 
-    content.clear()
     BS.clear()
     FS.clear()
     L.clear()
 
-    BS.extend(pd.to_numeric(df.iloc[:, 1], errors='coerce').tolist())
-    FS.extend(pd.to_numeric(df.iloc[:, 2], errors='coerce').tolist())
-    L.extend(pd.to_numeric(df.iloc[:, 3], errors='coerce').tolist())
+    # 轉換時過濾 NaN 並確保是 float
+    BS.extend(pd.to_numeric(df_cleaned.iloc[:, 1], errors='coerce').dropna().astype(float).tolist())
+    FS.extend(pd.to_numeric(df_cleaned.iloc[:, 2], errors='coerce').dropna().astype(float).tolist())
+    L.extend(pd.to_numeric(df_cleaned.iloc[:, 3], errors='coerce').dropna().astype(float).tolist())
 
-    
-    origin_h = float(origin_hight.get())
+    try:
+        origin_h = float(origin_hight.get())
+    except ValueError:
+        origin_h = 0.0
+        
     surveying.BS = BS
     surveying.FS = FS
     surveying.L = L
     surveying.origin_high = origin_h
     
-    surveying.after_high_list = [] 
+    surveying.after_high_list = [] # 清空舊的高程紀錄
     surveying.calculate_all()
 
 def show_content():
@@ -93,17 +97,36 @@ def show_content():
 
 def output():
     global surveying
+    
+    # 從 UI 獲取最新的閉合差等級 (例如 7 或 20)
+    try:
+        k_constant = float(select_allowable_misclosure.get())
+    except:
+        k_constant = 20.0 # 預設值
 
-    output_box.config(state=tk.NORMAL)
-    output_box.delete("1.0", tk.END)
-    output_box.insert(tk.END, surveying.check_misclosure() + "\n")
+    output_box.config(state=tk.NORMAL) # 開啟編輯權限
+    output_box.delete("1.0", tk.END)   # 清空舊畫面
+    
+    # 插入最新計算結果
+    output_box.insert(tk.END, surveying.check_misclosure(constant=k_constant) + "\n")
     output_box.insert(tk.END, surveying.display_table() + "\n")
-    output_box.config(state=tk.DISABLED)
+    
+    output_box.config(state=tk.DISABLED) # 重新鎖定唯讀
 
 
 def run():
     global df
-    parser(df)
+    if isinstance(df, list) and len(df) == 0:
+        output_box.config(state=tk.NORMAL)
+        output_box.delete("1.0", tk.END)
+        output_box.insert(tk.END, "請先上傳檔案！")
+        output_box.config(state=tk.DISABLED)
+        return
+
+    # 1. 重新解析 (確保 Origin Height 有被更新)
+    parser(df) 
+    
+    # 2. 執行輸出更新介面
     output()
 # -------------------------
 # 按鈕
