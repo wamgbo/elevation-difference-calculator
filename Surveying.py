@@ -1,10 +1,128 @@
 import math
 import matplotlib.pyplot as plt
+
+
+class Surveying:
+    def __init__(self,BS,FS,L,origin_high):
+        self.BS=BS
+        self.FS=FS
+        self.L=L
+        self.K=sum(L)/2
+        self.origin_high=origin_high
+        self.High = []
+        self.vi = []
+        self.correction_level_high = []
+        self.after_high = []
+        self.dH_list=[]
+        self.init_dH_list()
+        self.V_list=[]
+        self.init_V_list()
+        self.correction_level_high_list=[]
+        self.init_correction_level_high_list()
+        self.after_high_list=[]
+        self.init_after_high_list()
+        
+
+    # --- initer ---
+    def init_correction_level_high_list(self):
+        self.V_list=self._Correction_level_high(self.dH_list)
+    def init_V_list(self):
+        self.V_list=self._Correction_value(self.dH_list)
+    def init_dH_list(self):
+        self.dH_list=self._level_high(self.BS,self.FS)
+    def init_after_high_list(self):
+        self.after_high_list=self.after_high()
+    # --- geter ---
+    def get_C(self):
+        WH_mm,C=self._Allowable_Misclosure(),
+        return C
+    def get_WH_mm(self):
+        WH_mm,temp=self._Allowable_Misclosure()
+        return WH_mm
+
+    # --- 1. 計算高程差 ---
+    def level_high(self):
+        return self._level_high(self.BS,self.FS)
+    def _level_high(self,BS, FS):
+        n = len(BS)
+        for i in range(n):
+            dh = BS[i] - FS[i]
+            self.High.append(dh)
+        # return 必須移到迴圈外面，才能回傳完整的列表
+        return self.High
+
+    # --- 2. 計算改正值 ---
+    def Correction_value(self):
+        return self._Correction_value(self.dH_list)
+    def _Correction_value(self,dH_list):
+        WH = round(sum(dH_list), 3)
+        n = len(dH_list)
+        total_len = sum(L)
+    
+        for i in range(n):
+            v = -WH * (L[i] / total_len) # 修正公式寫法
+            self.vi.append(v)
+        return self.vi
+    
+    # --- 3. 計算改正後高程差 ---
+    def Correction_level_high(self):
+        return self._Correction_level_high()
+    def _Correction_level_high(self):
+        n = len(self.dH_list)
+        for i in range(n):
+            c_l_h_i = self.High[i] + self.vi[i]
+            self.correction_level_high.append(c_l_h_i)
+        return self.correction_level_high
+    # --- 4. 計算高程 ---
+    def After_High(self):
+        return self._After_High()
+    def _After_High(self):
+        # 這裡使用一個暫存變數來累加，避免一直修改 global self.origin_high 的初始值
+        current_h = self.origin_high 
+        n = len(self.dH_list)
+    
+        for i in range(n):
+            current_h += self.correction_level_high[i]
+            self.after_high.append(current_h)
+        return self.after_high
+
+    def _Allowable_Misclosure(self):
+        # 修正: 先加總再乘 1000 換算成 mm
+        WH_mm = abs(sum(self.dH_list) * 1000) 
+    
+        # 公式: 20 * sqrt(K)
+        C = abs(20 * math.sqrt(K))#20可以改  3,7,10,20下拉是選項
+        return round(WH_mm, 2),round(C, 2)
+    def get_C(self):
+        WH_mm,C=self._Allowable_Misclosure(),
+        return C
+    def get_WH_mm(self):
+        WH_mm,temp=self._Allowable_Misclosure()
+        return WH_mm
+    def Allowable_Misclosure(self,thenumber):
+        # 修正: 先加總再乘 1000 換算成 mm
+        WH_mm = abs(sum(self.dH_list) * 1000) 
+    
+        # 公式: 20 * sqrt(K)
+        C = abs(thenumber * math.sqrt(self.K))#20可以改  3,7,10,20下拉是選項
+    
+        print("-" * 30)
+        print(f"閉合差 Wh = {round(WH_mm, 2)} mm")
+        print(f"容許值 C  = {round(C, 2)} mm")
+    
+        if WH_mm < C:
+            print("結果: 合格 (在容許誤差範圍內)")
+        else:
+            print("結果: 不合格 (超出容許誤差範圍)")
+    
+
+
 # --- 原始數據 ---
 BS = [1.331, 0.223, 0.962, 0.466, 11.943, 12.538, 12.763]
 FS = [8.374, 7.915, 11.722, 8.711, 2.585, 0.695, 0.215]
 L  = [0.12, 0.12, 0.11, 0.10, 0.16, 0.15, 0.12]
 origin_high = 53.182
+test=Surveying(BS,FS,L,origin_high)
 
 # 全域變數初始化
 High = []
