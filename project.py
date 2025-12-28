@@ -1,6 +1,6 @@
 import tkinter as tk
 import pandas as pd
-import Surveying
+from Surveying import Surveying
 from tkinter import scrolledtext, filedialog
 from tkinter import ttk
 
@@ -19,7 +19,7 @@ content = []
 BS = []
 FS = []
 L = []
-
+surveying=Surveying()
 # -------------------------
 # 讀取檔案
 # -------------------------
@@ -38,7 +38,7 @@ def open_file():
     try:
         df = pd.read_excel(file_path)
         parser(df)
-        show_content()
+        # show_content()
     except Exception as e:
         output_box.delete("1.0", tk.END)
         output_box.insert(tk.END, f"讀取檔案失敗：\n{e}")
@@ -47,7 +47,7 @@ def open_file():
 # 解析 Excel
 # -------------------------
 def parser(df):
-    # 清空舊資料（很重要）
+    global surveying
     content.clear()
     BS.clear()
     FS.clear()
@@ -59,6 +59,15 @@ def parser(df):
         BS.append(row[1])
         FS.append(row[2])
         L.append(row[3])
+
+    # 將 Entry 內容轉成 float
+    origin_h = float(origin_hight.get())
+    print(origin_h)
+    surveying.BS = BS
+    surveying.FS = FS
+    surveying.L = L
+    surveying.origin_high = origin_h
+    surveying.calculate_all()  # 計算中間結果
 
 # -------------------------
 # 顯示 Excel 內容
@@ -74,16 +83,25 @@ def parser(df):
 def show_content():
     if not content:
         return
+
     # 將 content 轉回 DataFrame（或直接使用原 df）
-    df_display = pd.DataFrame(content)
+    # df_display = pd.DataFrame(content)
+        # DataFrame 加上欄位名稱
+    df_display = pd.DataFrame(content, columns=["Point", "BS", "FS", "L"])
+
+    # # 轉成字串
+    # df_str = df_display.to_string(index=False, header=True)
 
     # 將 DataFrame 轉成字串
-    df_str = df_display.to_string(index=False, header=True)
-
-    # 插入到 scrolledtext
+    # df_str = df_display.to_string(index=False, header=True)
     output_box.config(state=tk.NORMAL)
     output_box.delete("1.0", tk.END)
-    output_box.insert(tk.END, df_str)
+    output_box.insert(tk.END, BS)
+    output_box.insert(tk.END, '\n')
+    output_box.insert(tk.END, FS)
+    output_box.insert(tk.END, '\n')
+    output_box.insert(tk.END, L)
+    output_box.insert(tk.END, '\n')
     output_box.config(state=tk.DISABLED)
 
 # -------------------------
@@ -96,12 +114,13 @@ def output():
     if not BS or not FS:
         output_box.insert(tk.END, "\n尚未讀取資料\n")
         return
-
-    result = Surveying.level_high(BS, FS)
-    print(result)
-
-    output_box.insert(tk.END, "\n計算結果：\n")
-    output_box.insert(tk.END, str(result) + "\n")
+    
+    
+    # result = surveying.
+    # print(result)
+    print(surveying.display_table())
+    # output_box.insert(tk.END, "\n計算結果：\n")
+    # output_box.insert(tk.END, surveying.output_tables() + "\n")
 
 # -------------------------
 # 按鈕
@@ -117,10 +136,18 @@ tk.Button(window, text="calculate", command=output)\
 # bar1x=200
 bar1input=tk.StringVar()
 bar1x=0
+origin_hight_input_x=200
+origin_hight_label=tk.Label(window, text="Origin Hight:")
+origin_hight_label.grid(row=0,column=0 ,padx=origin_hight_input_x,pady=10,sticky="w")
+origin_hight=tk.Entry(window,width=5)
+origin_hight.grid(row=0,column=0 ,padx=origin_hight_input_x+100,pady=10,sticky="w")
+origin_hight.insert(0, "57.3")
+
 inputbarLabel=tk.Label(window, text="閉合差:")
 inputbarLabel.grid(row=0,column=3,padx=bar1x,pady=10,sticky="w")
-select_allowable_misclosure=ttk.Combobox(window,width=5,values=[2,7,10,20])
+select_allowable_misclosure=ttk.Combobox(window,width=5,values=[2,7,10,20],state="readonly")
 select_allowable_misclosure.grid(row=0,column=3 ,padx=bar1x+50,pady=10,sticky="w")
+select_allowable_misclosure.set(7)
 # -------------------------
 # 輸出框
 # -------------------------
