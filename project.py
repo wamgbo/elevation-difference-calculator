@@ -29,8 +29,10 @@ def open_file():
         title="upload file",
         filetypes=[("Excel files", "*.xlsx *.xls")]
     )
+    print(file_path)
 
     if not file_path:
+        output_box.insert(tk.END, f"讀取檔案失敗：\n{e}")
         return
 
     try:
@@ -61,13 +63,28 @@ def parser(df):
 # -------------------------
 # 顯示 Excel 內容
 # -------------------------
-def show_content():
-    output_box.delete("1.0", tk.END)
-    output_box.insert(tk.END, "BS\tFS\tL\n")
-    output_box.insert(tk.END, "-" * 30 + "\n")
+# def show_content():
+#     output_box.delete("1.0", tk.END)
+#     output_box.insert(tk.END, "BS\tFS\tL\n")
+#     output_box.insert(tk.END, "-" * 30 + "\n")
 
-    for row in content:
-        output_box.insert(tk.END, f"{row[0]}\t{row[1]}\t{row[2]}\n")
+#     for row in content:
+#         output_box.insert(tk.END, f"{row[0]}\t{row[1]}\t{row[2]}\n")
+
+def show_content():
+    if not content:
+        return
+    # 將 content 轉回 DataFrame（或直接使用原 df）
+    df_display = pd.DataFrame(content)
+
+    # 將 DataFrame 轉成字串
+    df_str = df_display.to_string(index=False, header=True)
+
+    # 插入到 scrolledtext
+    output_box.config(state=tk.NORMAL)
+    output_box.delete("1.0", tk.END)
+    output_box.insert(tk.END, df_str)
+    output_box.config(state=tk.DISABLED)
 
 # -------------------------
 # 計算並輸出結果
@@ -81,6 +98,7 @@ def output():
         return
 
     result = Surveying.level_high(BS, FS)
+    print(result)
 
     output_box.insert(tk.END, "\n計算結果：\n")
     output_box.insert(tk.END, str(result) + "\n")
