@@ -105,4 +105,4 @@ if __name__ == "__main__":
     survey.calculate_all()
     print(survey.check_misclosure(constant=20))
     print(survey.display_table())
-    # survey.plot_profile()
+    survey.plot_profile()
