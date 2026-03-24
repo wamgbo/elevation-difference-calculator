@@ -40,7 +40,7 @@ python main.py
 
 授權：MIT
 
-開發者：wamgbo
+開發者：wamgbo、liberalman123 
 
 
 學術合作：國立中興大學土木工程學系 (Department of Civil Engineering, NCHU)
