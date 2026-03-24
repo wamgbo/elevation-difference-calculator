@@ -14,9 +14,7 @@
 
 🛠️ 技術棧
 
-    Language: [請填寫，如：Python / Java]
-
-    Framework: [請填寫，如：Streamlit / Android SDK]
+    Language: [請填寫，如：Python]
 
     Domain Logic: 測量學 (Surveying) - 高程測量
 
@@ -41,6 +39,3 @@ python main.py
 授權：MIT
 
 開發者：wamgbo、liberalman123 
-
-
-學術合作：國立中興大學土木工程學系 (Department of Civil Engineering, NCHU)
